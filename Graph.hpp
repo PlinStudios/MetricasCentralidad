@@ -1,16 +1,36 @@
-#include <vector>
+#include <array>
+#include <list>
+
+template<typename E>
+class Edge;
 
 template<typename E>
 class Vertex{
+    public:
     E element;
+
+    std::list<Edge<E>*> edges;
+
+    std::list<Vertex<E>*>::iterator it;
+
+    Vertex(E o) : element(o) {}
 };
 
 template<typename E>
 class Edge{
-    Vertex start;
-    Vertex end;
+    public:
+    Vertex<E> *start;
+    Vertex<E> *end;
 
     E element;
+
+    std::list<Edge<E>*>::iterator startit;
+    std::list<Edge<E>*>::iterator endit;
+
+    std::list<Edge<E>*>::iterator it;
+
+    Edge(Vertex<E>* s, Vertex<E>* e, E o)
+    : start(s), end(e), element(o) {}
 };
 
 //ADT Grafo
@@ -19,21 +39,22 @@ class Graph{
 
     public:
     // Métodos de acceso
-    Vertex* endVertices(Edge e); //Un arreglo con los dos puntos extremos de e
-    Vertex opposite(Vertex v, Edge e); //El vértice opuesto de v en la arista e
-    bool areAdjacent(Vertex v, Vertex w); //true iff v y w son adyacentes
-    void replace(Vertex v, E x); //Reemplaza el elemento en el vértice con x
-    void replace(Edge e, E x); //Reemplaza el elemento en la arista con 
+    virtual std::array<Vertex<E>*,2> endVertices(Edge<E> *e)=0; //Un arreglo con los dos puntos extremos de e
+    virtual Vertex<E> *opposite(Vertex<E> *v, Edge<E> *e)=0; //El vértice opuesto de v en la arista e
+    virtual bool areAdjacent(Vertex<E> *v, Vertex<E> *w)=0; //true iff v y w son adyacentes
+    virtual void replace(Vertex<E> *v, E x)=0; //Reemplaza el elemento en el vértice con x
+    virtual void replace(Edge<E> *e, E x)=0; //Reemplaza el elemento en la arista con x
 
     // Métodos de actualización
-    Vertex insertVertex(E o); //Inserta un vértice almacenando el elemento o
-    Edge insertEdge(Vertex v, Vertex w, E o); //Inserta una arista (v,w) almacenando el elemento o
-    void removeVertex(Vertex v); //Elimina el vértice (y sus aristas incidentes)
-    void removeEdge(Edge e); //Elimina la arista e
+    virtual Vertex<E> *insertVertex(E o)=0; //Inserta un vértice almacenando el elemento o
+    virtual Edge<E> *insertEdge(Vertex<E> *v, Vertex<E> *w, E o)=0; //Inserta una arista (v,w) almacenando el elemento o
+    virtual void removeVertex(Vertex<E> *v)=0; //Elimina el vértice (y sus aristas incidentes)
+    virtual void removeEdge(Edge<E> *e)=0; //Elimina la arista e
 
     // Métodos iteradores
-    std::vector<Edge> incidentEdges(Vertex v); //Aristas incidentes a un vértice v
-    std::vector<Vertex> vertices(); //Todos los vértices en el grafo
-    std::vector<Edge> edges(); //Todas las aristas en el grafo
+    virtual std::list<Edge<E>*> incidentEdges(Vertex<E> *v)=0; //Aristas incidentes a un vértice v
+    virtual std::list<Vertex<E>*> vertices()=0; //Todos los vértices en el grafo
+    virtual std::list<Edge<E>*> edges()=0; //Todas las aristas en el grafo
 
+    virtual ~Graph() = default;
 };
