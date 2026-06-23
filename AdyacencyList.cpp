@@ -1,23 +1,23 @@
 #include "Graph.hpp"
 #pragma once
 
-template<typename E>
-class ALGraph : public Graph<E>{
+template<typename V, typename E>
+class ALGraph : public Graph<V,E>{
 
     private:
-    std::list<Vertex<E>*> vertexList;
-    std::list<Edge<E>*> edgeList;
+    std::list<Vertex<V,E>*> vertexList;
+    std::list<Edge<V,E>*> edgeList;
 
 
     public:
     // Métodos de acceso
 
     //Un arreglo con los dos puntos extremos de e
-    std::array<Vertex<E>*,2> endVertices(Edge<E> *e) override{
+    std::array<Vertex<V,E>*,2> endVertices(Edge<V,E> *e) override{
         return {e->start, e->end};
     }
     //El vértice opuesto de v en la arista e
-    Vertex<E> *opposite(Vertex<E> *v, Edge<E> *e) override{
+    Vertex<V,E> *opposite(Vertex<V,E> *v, Edge<V,E> *e) override{
         if (v==e->start)
             return e->end;
         else if (v==e->end)
@@ -26,8 +26,8 @@ class ALGraph : public Graph<E>{
             return nullptr;
     }
     //true iff v y w son adyacentes
-    virtual bool areAdjacent(Vertex<E> *v, Vertex<E> *w) override{
-        for (Edge<E>* e : v->edges)
+    virtual bool areAdjacent(Vertex<V,E> *v, Vertex<V,E> *w) override{
+        for (Edge<V,E>* e : v->edges)
         {
             if (opposite(v,e) == w)
                 return true;
@@ -36,11 +36,11 @@ class ALGraph : public Graph<E>{
         
     }
     //Reemplaza el elemento en el vértice con x
-    virtual void replace(Vertex<E> *v, E x) override{
+    virtual void replace(Vertex<V,E> *v, V x) override{
         v->element = x;
     }
     //Reemplaza el elemento en la arista con x
-    virtual void replace(Edge<E> *e, E x) override{
+    virtual void replace(Edge<V,E> *e, E x) override{
         e->element = x;
     }
 
@@ -48,15 +48,15 @@ class ALGraph : public Graph<E>{
     // Métodos de actualización
 
     //Inserta un vértice almacenando el elemento o
-    virtual Vertex<E> *insertVertex(E o) override{
-        Vertex<E> *v = new Vertex<E>(o);
+    virtual Vertex<V,E> *insertVertex(V o) override{
+        Vertex<V,E> *v = new Vertex<V,E>(o);
         auto it = vertexList.insert(vertexList.end(),v);
         v->it = it;
         return v;
     }
     //Inserta una arista (v,w) almacenando el elemento o
-    virtual Edge<E> *insertEdge(Vertex<E> *v, Vertex<E> *w, E o) override{
-        Edge<E> *e = new Edge<E>(v,w,o);
+    virtual Edge<V,E> *insertEdge(Vertex<V,E> *v, Vertex<V,E> *w, E o) override{
+        Edge<V,E> *e = new Edge<V,E>(v,w,o);
         auto it = edgeList.insert(edgeList.end(),e);
         e->it = it;
 
@@ -70,7 +70,7 @@ class ALGraph : public Graph<E>{
         return e;
     }
     //Elimina el vértice (y sus aristas incidentes)
-    virtual void removeVertex(Vertex<E> *v) override{
+    virtual void removeVertex(Vertex<V,E> *v) override{
         //elimina aristas
         while (!v->edges.empty())
         {
@@ -81,7 +81,7 @@ class ALGraph : public Graph<E>{
         delete v;
     }
     //Elimina la arista e
-    virtual void removeEdge(Edge<E> *e) override{
+    virtual void removeEdge(Edge<V,E> *e) override{
         edgeList.erase(e->it);
 
         //elimina del listado en los vertices
@@ -103,15 +103,15 @@ class ALGraph : public Graph<E>{
     // Métodos iteradores
 
     //Aristas incidentes a un vértice v
-    virtual std::list<Edge<E>*> incidentEdges(Vertex<E> *v) override{
+    virtual std::list<Edge<V,E>*> incidentEdges(Vertex<V,E> *v) override{
         return v->edges;
     }
     //Todos los vértices en el grafo
-    virtual std::list<Vertex<E>*> vertices() override{
+    virtual std::list<Vertex<V,E>*> vertices() override{
         return vertexList;
     }
     //Todas las aristas en el grafo
-    virtual std::list<Edge<E>*> edges() override{
+    virtual std::list<Edge<V,E>*> edges() override{
         return edgeList;
     }
 
@@ -124,7 +124,7 @@ class ALGraph : public Graph<E>{
 
         while (!vertexList.empty())
         {
-            Vertex<E>* v = vertexList.front();
+            Vertex<V,E>* v = vertexList.front();
             vertexList.pop_front();
             delete v;
         }

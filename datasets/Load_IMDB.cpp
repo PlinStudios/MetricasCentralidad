@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-void LoadIMDB(Graph<int> *target, int max=INT_MAX){
+void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
     //abre archivo
     std::ifstream file("datasets/imdb_edgelist.csv");
     if (!file.is_open()) {
@@ -14,7 +14,7 @@ void LoadIMDB(Graph<int> *target, int max=INT_MAX){
     }
 
     //map para relacionar string a vertex
-    std::unordered_map<std::string, Vertex<int>*> vertices;
+    std::unordered_map<std::string, Vertex<std::string,int>*> vertices;
     
     std::string line;
     //pasa linea que describe parametros
@@ -40,20 +40,20 @@ void LoadIMDB(Graph<int> *target, int max=INT_MAX){
         if (count > max) break;
         std::cout << '\r' << count << " - " << from << ',' << to << ',' << strength << "\033[K";
         //crea o obtiene vertex
-        Vertex<int>* Vfrom;
+        Vertex<std::string,int>* Vfrom;
         auto Ifrom = vertices.find(from);
         if (Ifrom == vertices.end()){
             //si no existe lo crea
-            Vfrom = target->insertVertex(0);
+            Vfrom = target->insertVertex(from);
             vertices[from] = Vfrom;
         }else
             Vfrom = vertices[from];
 
-        Vertex<int>* Vto;
+        Vertex<std::string,int>* Vto;
         auto Ito = vertices.find(to);
         if (Ito == vertices.end()){
             //si no existe lo crea
-            Vto = target->insertVertex(0);
+            Vto = target->insertVertex(to);
             vertices[to] = Vto;
         }else
             Vto = vertices[to];

@@ -2,12 +2,12 @@
 #include "AdyacencyList.cpp"
 
 int main(){
-    ALGraph<int> *grafo = new ALGraph<int>();
+    ALGraph<std::string,int> *grafo = new ALGraph<std::string,int>();
     LoadIMDB(grafo,10000);
 
     auto ed = grafo->edges();
 
     for (auto edge : ed){
-        std::cout << edge->element;
+        std::cout << edge->start->element << ',' << edge->end->element << ',' << edge->element << std::endl;
     }
 }
