@@ -1,4 +1,5 @@
 #include "Graph.hpp"
+#pragma once
 
 template<typename E>
 class ALGraph : public Graph<E>{

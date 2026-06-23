@@ -1,5 +1,6 @@
 #include <array>
 #include <list>
+#pragma once
 
 template<typename E>
 class Edge;
@@ -11,7 +12,7 @@ class Vertex{
 
     std::list<Edge<E>*> edges;
 
-    std::list<Vertex<E>*>::iterator it;
+    typename std::list<Vertex<E>*>::iterator it;
 
     Vertex(E o) : element(o) {}
 };
@@ -24,10 +25,10 @@ class Edge{
 
     E element;
 
-    std::list<Edge<E>*>::iterator startit;
-    std::list<Edge<E>*>::iterator endit;
+    typename std::list<Edge<E>*>::iterator startit;
+    typename std::list<Edge<E>*>::iterator endit;
 
-    std::list<Edge<E>*>::iterator it;
+    typename std::list<Edge<E>*>::iterator it;
 
     Edge(Vertex<E>* s, Vertex<E>* e, E o)
     : start(s), end(e), element(o) {}

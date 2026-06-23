@@ -1,2 +1,4 @@
 .vscode
 *.exe
+datasets/imdb_edgelist.csv
+datasets/NetScience.net
