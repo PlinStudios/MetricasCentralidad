@@ -38,7 +38,7 @@ void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
 
         count++;
         if (count > max) break;
-        std::cout << '\r' << count << " - " << from << ',' << to << ',' << strength << "\033[K";
+        //std::cout << '\r' << count << " - " << from << ',' << to << ',' << strength << "\033[K";
         //crea o obtiene vertex
         Vertex<std::string,int>* Vfrom;
         auto Ifrom = vertices.find(from);
@@ -62,5 +62,5 @@ void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
         target->insertEdge(Vfrom,Vto,strength);
     }
 
-    std::cout << "\r\033[K";
+    //std::cout << "\r\033[K";
 }

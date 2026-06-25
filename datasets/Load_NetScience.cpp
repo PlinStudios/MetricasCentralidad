@@ -41,7 +41,7 @@ void LoadNetScience(Graph<std::string,float> *target){
 
         vertices[i] = target->insertVertex(name.substr(1,name.length()-2));
 
-        std::cout << '\r' << n << '/' << vcount << ' ' << vertices[i]->element << "\033[K";
+        //std::cout << '\r' << n << '/' << vcount << ' ' << vertices[i]->element << "\033[K";
     }
 
     //salta linea
@@ -55,9 +55,9 @@ void LoadNetScience(Graph<std::string,float> *target){
     {
         //crea edge
         count++;
-        std::cout << '\r' << count << " - " << from << " <-> " << to << " | " << weight << "\033[K";
+        //std::cout << '\r' << count << " - " << from << " <-> " << to << " | " << weight << "\033[K";
         target->insertEdge(vertices[from-1],vertices[to-1],weight);
     }
 
-    std::cout << "\r\033[K";
+    //std::cout << "\r\033[K";
 }

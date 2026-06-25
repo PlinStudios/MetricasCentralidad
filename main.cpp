@@ -3,8 +3,8 @@
 #include "AdyacencyList.cpp"
 
 int main(){
-    ALGraph<std::string,float> *grafo = new ALGraph<std::string,float>();
-    LoadNetScience(grafo);
+    ALGraph<std::string,int> *grafo = new ALGraph<std::string,int>();
+    LoadIMDB(grafo);
 
     auto ed = grafo->edges();
 
