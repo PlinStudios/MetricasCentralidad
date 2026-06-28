@@ -51,6 +51,7 @@ class ALGraph : public Graph<V,E>{
         Vertex<V,E> *v = new Vertex<V,E>(o);
         auto it = vertexList.insert(vertexList.end(),v);
         v->it = it;
+        v->rank=0;
         return v;
     }
     //Inserta una arista (v,w) almacenando el elemento o
@@ -159,6 +160,34 @@ class ALGraph : public Graph<V,E>{
         int degree=this->incidentEdges(v).size();
         int total=this->vertices().size();
         return (float)degree/(total-1);
+    }
+
+
+    void getPageRank(Vertex<V,E> *v){
+        int n= this->vertices().size();
+        int d=0.1;
+        auto vecinos= this->incidentEdges(v);
+        float sum=0;
+        for (auto veci : vecinos){
+            sum+= (float) veci->end->rank/this->incidentEdges(veci->end).size();
+        }
+        //std::cout << sum << std::endl;
+        v->rank= (float) (1-d)/n + d*sum;
+
+    }
+
+
+    void updateRank(){
+        auto vertices= this->vertices();
+        for (int i=0; i<5; i++){
+            for (auto v: vertices){
+                this->getPageRank(v);
+            }
+        }
+    }
+
+    float pageRank(Vertex<V,E> *v){
+        return v->rank;
     }
 
 };

@@ -14,6 +14,8 @@ class Vertex{
 
     typename std::list<Vertex<V,E>*>::iterator it;
 
+    float rank;
+
     Vertex(V o) : element(o) {}
 };
 
