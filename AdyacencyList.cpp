@@ -179,7 +179,7 @@ class ALGraph : public Graph<V,E>{
 
     void getPageRank(Vertex<V,E> *v){
         int n= this->vertices().size();
-        float d=0.1;
+        float d=0.85;
         auto vecinos= this->incidentEdges(v);
         float sum=0;
         for (auto veci : vecinos){
@@ -193,7 +193,7 @@ class ALGraph : public Graph<V,E>{
 
     void updateRank(){
         auto vertices= this->vertices();
-        for (int i=0; i<25; i++){
+        for (int i=0; i<45; i++){
             int cont=0;
             for (auto v: vertices){
                 float aux= pageRank(v);
