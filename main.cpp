@@ -15,16 +15,16 @@ int main(){
     }
     */
 
-      //std::cout << grafo-> laplacianEnergy() << std::endl;
+      std::cout << grafo-> laplacianEnergy() << std::endl;
       std::list<Vertex<std::string,int>*> vert =  grafo->vertices();
-      //std::cout << grafo-> laplacianCentrality(*std::begin(vert)) << std::endl;
+      std::cout << grafo-> laplacianCentrality(*std::begin(vert)) << std::endl;
       std::cout << grafo-> degreeCentrality(*std::begin(vert)) << std::endl;
 
       //grafo->updateRank();
 
       //std::cout << grafo-> pageRank(*std::begin(vert)) << std::endl;
 
-    //std::cout << grafo-> closenessCentrality(*std::begin(vert)) << std::endl;
-    //std::cout << grafo-> harmonicCentrality(*std::begin(vert)) << std::endl;
-    std::cout << grafo-> averagePathLength() << std::endl;
+    std::cout << grafo-> closenessCentrality(*std::begin(vert)) << std::endl;
+    std::cout << grafo-> harmonicCentrality(*std::begin(vert)) << std::endl;
+   // std::cout << grafo-> averagePathLength() << std::endl;
 }

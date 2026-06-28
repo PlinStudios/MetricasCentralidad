@@ -144,10 +144,10 @@ class ALGraph : public Graph<V,E>{
         }
     }
 
-    int laplacianEnergy(Vertex<V,E> *vertex = nullptr){
-        int energy=0;
+    float laplacianEnergy(Vertex<V,E> *vertex = nullptr){
+        float energy=0;
         for (auto v: this->vertexList){
-            int sum=0;
+            float sum=0;
             if (v!=vertex){
                 for (auto ed : this->incidentEdges(v)){
                     if (ed->start!=vertex && ed->end!=vertex){
@@ -163,8 +163,8 @@ class ALGraph : public Graph<V,E>{
     }
 
     float laplacianCentrality(Vertex<V,E> *v){
-        int lapTotal= this->laplacianEnergy();
-        int lapNoVertex= laplacianEnergy(v);
+        float lapTotal= this->laplacianEnergy();
+        float lapNoVertex= laplacianEnergy(v);
         float lapVertex= (float) (lapTotal - lapNoVertex)/lapTotal;
         //std::cout << lapTotal << " <-> " << lapNoVertex << std::endl;
         return lapVertex;
@@ -179,7 +179,7 @@ class ALGraph : public Graph<V,E>{
 
     void getPageRank(Vertex<V,E> *v){
         int n= this->vertices().size();
-        int d=0.1;
+        float d=0.1;
         auto vecinos= this->incidentEdges(v);
         float sum=0;
         for (auto veci : vecinos){
@@ -200,7 +200,7 @@ class ALGraph : public Graph<V,E>{
                 this->getPageRank(v);
                 float dif = abs(pageRank(v) - aux);
                 if (dif<0.0001){
-                    cont++
+                    cont++;
                 }
             }
             if (cont==vertices.size()){
@@ -214,7 +214,7 @@ class ALGraph : public Graph<V,E>{
     }
 
     float closenessCentrality(Vertex<V,E> *v){
-        int sum=0;
+        float sum=0;
         unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
          for (Vertex<V, E>* u : vertexList) {
             if (dist[u]== INF){
@@ -242,7 +242,7 @@ class ALGraph : public Graph<V,E>{
     }
 
     float averagePathLength(){
-        int sum=0;
+        float sum=0;
         for (Vertex<V, E>* v : vertexList) {
             unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
             for (Vertex<V, E>* u : vertexList) {
