@@ -155,4 +155,10 @@ class ALGraph : public Graph<V,E>{
         return lapVertex;
     }
 
+    float degreeCentrality(Vertex<V,E> *v){
+        int degree=this->incidentEdges(v).size();
+        int total=this->vertices().size();
+        return (float)degree/(total-1);
+    }
+
 };

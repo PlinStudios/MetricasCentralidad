@@ -16,4 +16,5 @@ int main(){
       //std::cout << grafo-> laplacianEnergy() << std::endl;
       std::list<Vertex<std::string,int>*> vert =  grafo->vertices();
       std::cout << grafo-> laplacianCentrality(*std::begin(vert)) << std::endl;
+      std::cout << grafo-> degreeCentrality(*std::begin(vert)) << std::endl;
 }
