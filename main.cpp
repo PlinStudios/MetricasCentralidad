@@ -24,6 +24,7 @@ int main(){
 
       //std::cout << grafo-> pageRank(*std::begin(vert)) << std::endl;
 
-    std::cout << grafo-> closenessCentrality(*std::begin(vert)) << std::endl;
-    std::cout << grafo-> harmonicCentrality(*std::begin(vert)) << std::endl;
+    //std::cout << grafo-> closenessCentrality(*std::begin(vert)) << std::endl;
+    //std::cout << grafo-> harmonicCentrality(*std::begin(vert)) << std::endl;
+    std::cout << grafo-> averagePathLength() << std::endl;
 }

@@ -1,6 +1,7 @@
 #include "Graph.hpp"
 #include <vector>
 #include <unordered_map>
+#include <cmath> 
 #include "InverseMatrix.hpp"
 #pragma once
 
@@ -192,9 +193,18 @@ class ALGraph : public Graph<V,E>{
 
     void updateRank(){
         auto vertices= this->vertices();
-        for (int i=0; i<5; i++){
+        for (int i=0; i<25; i++){
+            int cont=0;
             for (auto v: vertices){
+                float aux= pageRank(v);
                 this->getPageRank(v);
+                float dif = abs(pageRank(v) - aux);
+                if (dif<0.0001){
+                    cont++
+                }
+            }
+            if (cont==vertices.size()){
+                return;
             }
         }
     }
@@ -231,8 +241,24 @@ class ALGraph : public Graph<V,E>{
         return sum / (vertices().size() - 1);  //normaliza la métrica
     }
 
+    float averagePathLength(){
+        int sum=0;
+        for (Vertex<V, E>* v : vertexList) {
+            unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
+            for (Vertex<V, E>* u : vertexList) {
+                if (dist[u]== INF){
+                    sum+=0;
+                }
+                else{
+                    sum+= dist[u];
+                }
+            }
+        }
+        return (float) sum / ((vertices().size() - 1)*vertices().size()); 
+    }
 
 
+// código basado en implementación de geeksforgeeks
 unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
     // Priority queue que guarda pares de: <distancia actual, puntero al vertice>
     // greater es para que los menores elementos se procesen primero
