@@ -1,6 +1,13 @@
 #include "Graph.hpp"
 #pragma once
 
+using namespace std;
+#include <queue>
+#include <unordered_map>
+#include <limits>
+#include <iostream>
+
+
 template<typename V, typename E>
 class ALGraph : public Graph<V,E>{
 
@@ -10,6 +17,9 @@ class ALGraph : public Graph<V,E>{
 
     public:
     // Métodos de acceso
+
+    
+    E INF = numeric_limits<E>::max();  //infinito
 
     //Un arreglo con los dos puntos extremos de e
     std::array<Vertex<V,E>*,2> endVertices(Edge<V,E> *e) override{
@@ -169,7 +179,7 @@ class ALGraph : public Graph<V,E>{
         auto vecinos= this->incidentEdges(v);
         float sum=0;
         for (auto veci : vecinos){
-            sum+= (float) veci->end->rank/this->incidentEdges(veci->end).size();
+            sum+= (float) opposite(v, veci)->rank/this->incidentEdges(opposite(v, veci)).size();
         }
         //std::cout << sum << std::endl;
         v->rank= (float) (1-d)/n + d*sum;
@@ -189,5 +199,82 @@ class ALGraph : public Graph<V,E>{
     float pageRank(Vertex<V,E> *v){
         return v->rank;
     }
+
+
+    float closenessCentrality(Vertex<V,E> *v){
+        int sum=0;
+        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
+         for (Vertex<V, E>* u : vertexList) {
+            if (dist[u]== INF){
+                return 0;
+            }
+            sum+=dist[u];
+         }
+        float close= (float) (this->vertices().size() - 1 ) / sum;
+        return close;
+    }
+
+
+    float harmonicCentrality(Vertex<V,E> *v){
+        float sum=0;
+        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
+        for (Vertex<V, E>* u : vertexList) {
+            if (dist[u]== INF || dist[u]== 0){
+                sum+=0;
+            }
+                else{
+                sum+= (float) 1/dist[u];
+            }
+         }
+        return sum / (vertices().size() - 1);  //normaliza la métrica
+    }
+
+
+
+unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
+    // Priority queue que guarda pares de: <distancia actual, puntero al vertice>
+    // greater es para que los menores elementos se procesen primero
+    using PQ_Element = pair<E, Vertex<V, E>*>;
+    priority_queue<PQ_Element, vector<PQ_Element>, greater<PQ_Element>> pq;
+
+    // distancia entre nuestro punto de partida (src) y los otros vectores
+    unordered_map<Vertex<V, E>*, E> dist;
+
+    // se inicializa la distancia como infinito
+    for (auto v : this->vertexList) {
+        dist[v] = INF;
+    }
+
+    // se inserta el src con distancia 0
+    pq.push(make_pair(static_cast<E>(0), src));
+    dist[src] = static_cast<E>(0);
+
+    while (!pq.empty()) {
+        // se saca vertice con menor distancis
+        Vertex<V, E>* u = pq.top().second;  //segundo elemento del par, es decir el vértice
+        E dist_u = pq.top().first;  //primer elemento del par, la distancia
+        pq.pop();
+
+        // saltamos si ya hay distanica menor
+        if (dist_u > dist[u]) {
+            continue;
+        }
+
+        // recorremos todos los vertices conectados a u
+        for (Edge<V, E>* e : u->edges) {
+            Vertex<V, E>* v = opposite(u, e);
+            E weight = e->element;
+
+            if (dist[v] > dist[u] + weight) {
+                dist[v] = dist[u] + weight;
+                pq.push(std::make_pair(dist[v], v));
+            }
+        }
+    } 
+
+    return dist;
+    
+}
+
 
 };
