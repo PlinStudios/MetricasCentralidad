@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
+void LoadIMDB(Graph<std::string,int> *target, int max_vertice=INT_MAX){
     //abre archivo
     std::ifstream file("datasets/imdb_edgelist.csv");
     if (!file.is_open()) {
@@ -21,6 +21,7 @@ void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
     std::getline(file, line);
 
     int count=0;
+    bool willBeAdded = true;
     while (std::getline(file, line))
     {
         //lee edges
@@ -36,16 +37,20 @@ void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
 
         int strength = std::stoi(strengthStr);
 
-        count++;
-        if (count > max) break;
         //std::cout << '\r' << count << " - " << from << ',' << to << ',' << strength << "\033[K";
         //crea o obtiene vertex
+        willBeAdded = true;
         Vertex<std::string,int>* Vfrom;
         auto Ifrom = vertices.find(from);
         if (Ifrom == vertices.end()){
             //si no existe lo crea
-            Vfrom = target->insertVertex(from);
-            vertices[from] = Vfrom;
+            if (count >=max_vertice){
+                willBeAdded = false;
+            } else {
+                Vfrom = target->insertVertex(from);
+                vertices[from] = Vfrom;
+                count++;
+            }
         }else
             Vfrom = vertices[from];
 
@@ -53,13 +58,18 @@ void LoadIMDB(Graph<std::string,int> *target, int max=INT_MAX){
         auto Ito = vertices.find(to);
         if (Ito == vertices.end()){
             //si no existe lo crea
-            Vto = target->insertVertex(to);
-            vertices[to] = Vto;
+            if(count >= max_vertice){
+                willBeAdded = false;
+            } else {
+                Vto = target->insertVertex(to);
+                vertices[to] = Vto;
+                count++;
+            }
         }else
             Vto = vertices[to];
 
         //crea edge
-        target->insertEdge(Vfrom,Vto,strength);
+        if(willBeAdded) target->insertEdge(Vfrom,Vto,strength);
     }
 
     //std::cout << "\r\033[K";
