@@ -286,12 +286,21 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
         for (auto v : vertices){
             j=0;
             for (auto w : vertices){
-                if (areAdjacent(v,w) && matriz_laplaciana[i][j]==0.0){
-                    int weight = edge->element;
-                    matriz_laplaciana[i][i] += weight;
-                    matriz_laplaciana[j][j] += weight;
-                    matriz_laplaciana[i][j] -= weight;
-                    matriz_laplaciana[j][i] -= weight;
+                if (areAdjacent(v, w) && matriz_laplaciana[i][j] == 0.0) {
+                    Edge<V, E>* edge_between = nullptr;
+                    for (auto e : incidentEdges(v)) {
+                        if (opposite(v, e) == w) {
+                            edge_between = e;
+                            break;
+                        }
+                    }
+                    if (edge_between != nullptr) {
+                        int weight = edge_between->element;  // peso de la arista
+                        matriz_laplaciana[i][i] += weight;
+                        matriz_laplaciana[j][j] += weight;
+                        matriz_laplaciana[i][j] -= weight;
+                        matriz_laplaciana[j][i] -= weight;
+                    }
                 }
                 j++;
             }
@@ -305,7 +314,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
         vector<vector<double>> matriz_c(graph_size, vector<double>(graph_size));
         inverse(matriz_laplaciana, matriz_c);
         double traza = 0;
-        for(int a=0; a<n;a++){
+        for(int a=0; a<graph_size;a++){
             traza+= matriz_c[a][a];
         }
         i=0;
