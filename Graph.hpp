@@ -15,6 +15,7 @@ class Vertex{
     typename std::list<Vertex<V,E>*>::iterator it;
 
     float rank;
+    double cfc_centrality;
 
     Vertex(V o) : element(o) {}
 };
