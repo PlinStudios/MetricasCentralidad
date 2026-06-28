@@ -353,4 +353,96 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
         }
     }
 
+//codigo basado en implementación de geeksforgeeks
+float betweennessCentrality(Vertex<V, E>* target) {
+    float bet = 0.0f;
+
+    for (Vertex<V, E>* src : this->vertexList) {
+        for (Vertex<V, E>* dest : this->vertexList) {
+            
+            // se nos pide qie no sean iguales
+            if (src == dest || src == target || dest == target) {
+                continue;
+            }
+
+             // Priority queue que guarda pares de: <distancia actual, puntero al vertice>
+            // greater es para que los menores elementos se procesen primero
+            using PQ_Element = pair<E, Vertex<V, E>*>;
+            priority_queue<PQ_Element, vector<PQ_Element>, greater<PQ_Element>> pq;
+
+            // distancia entre nuestro punto de partida (src) y los otros vectores
+            unordered_map<Vertex<V, E>*, E> dist;
+            //cantidad de caminos
+            unordered_map<Vertex<V, E>*, int> num_paths;
+            //caminos que pasan por nuestro vertice a calcular
+            unordered_map<Vertex<V, E>*, int> paths_through_target;
+
+            // Inicializamos valores
+            for (auto vertex : this->vertexList) {
+                dist[vertex] = INF;
+                num_paths[vertex] = 0;
+                paths_through_target[vertex] = 0;
+            }
+
+            // se inicializa src
+            pq.push(std::make_pair(static_cast<E>(0), src));
+            dist[src] = static_cast<E>(0);
+            num_paths[src] = 1;
+
+            while (!pq.empty()) {
+                // se saca el vertice a menor distancia
+                Vertex<V, E>* u = pq.top().second;  //segundo elemento del par, es decir el vértice
+                E dist_u = pq.top().first;  //primer elemento del par, la distancia
+                pq.pop();
+                
+
+                // saltamos si ya hay distancia menor
+                if (dist_u > dist[u]) {
+                    continue;
+                }
+
+                // recorremos todos los vértices conectados a u
+                for (Edge<V, E>* e : u->edges) {
+                    Vertex<V, E>* neighbor = opposite(u, e);
+                    E weight = e->element;
+
+                    // si encontramos camino mas corto
+                    if (dist[neighbor] > dist[u] + weight) {
+                        dist[neighbor] = dist[u] + weight;
+                        pq.push(std::make_pair(dist[neighbor], neighbor));
+                        
+                        // se "hereda" la canitdad de caminos que nos llevan a u
+                        num_paths[neighbor] = num_paths[u];
+                        
+                        // si u es nuestro target aumentamos el coontador
+                        if (u == target) {
+                            paths_through_target[neighbor] = num_paths[u];
+                        } else { //si al llegar a u ya pasamos por target
+                            paths_through_target[neighbor] = paths_through_target[u];
+                        }
+                    } 
+                    // si encontramos camino que también es el más corto
+                    else if (dist[neighbor] == dist[u] + weight) {
+                        // sumamos caminos alternos
+                        num_paths[neighbor] += num_paths[u];
+                        
+                        if (u == target) {
+                            paths_through_target[neighbor] += num_paths[u];
+                        } else {
+                            paths_through_target[neighbor] += paths_through_target[u];
+                        }
+                    }
+                }
+            }
+
+            if (num_paths[dest] > 0) {
+                bet += (float)paths_through_target[dest] / num_paths[dest];
+            }
+        }
+    }
+
+    return bet; 
+}
+
+
 };
