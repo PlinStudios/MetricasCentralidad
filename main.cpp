@@ -4,7 +4,9 @@
 
 int main(){
     ALGraph<std::string,int> *grafo = new ALGraph<std::string,int>();
+    ALGraph<std::string,float> *grafo2 = new ALGraph<std::string,float>();
     LoadIMDB(grafo);
+    LoadNetScience(grafo2);
 /*
    auto ed = grafo->edges();
 

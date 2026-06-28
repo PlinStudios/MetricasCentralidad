@@ -1,4 +1,6 @@
 #include "Graph.hpp"
+#include <vector>
+#include "InverseMatrix.hpp"
 #pragma once
 
 using namespace std;
@@ -200,7 +202,6 @@ class ALGraph : public Graph<V,E>{
         return v->rank;
     }
 
-
     float closenessCentrality(Vertex<V,E> *v){
         int sum=0;
         unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
@@ -273,8 +274,47 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
     } 
 
     return dist;
-    
 }
 
+
+
+    void updateCFC_Centrality(){
+        int graph_size = vertices().size();
+        std::vector<std::vector<int>> matriz_laplaciana(graph_size, std::vector<int>(graph_size, 0.0));
+        int i = 0;
+        int j = 0;
+        for (auto v : vertices){
+            j=0;
+            for (auto w : vertices){
+                if (areAdjacent(v,w) && matriz_laplaciana[i][j]==0.0){
+                    int weight = edge->element;
+                    matriz_laplaciana[i][i] += weight;
+                    matriz_laplaciana[j][j] += weight;
+                    matriz_laplaciana[i][j] -= weight;
+                    matriz_laplaciana[j][i] -= weight;
+                }
+                j++;
+            }
+            i++;
+        }
+        for (int a =0; a<graph_size; a++){
+            for (int b=0;b<graph_size;b++){
+                matriz_laplaciana[a][b]++;
+            }
+        }
+        vector<vector<double>> matriz_c(graph_size, vector<double>(graph_size));
+        inverse(matriz_laplaciana, matriz_c);
+        double traza = 0;
+        for(int a=0; a<n;a++){
+            traza+= matriz_c[a][a];
+        }
+        i=0;
+        for (auto v : vertices){
+            double aux_cent = graph_size*matriz_c[i][i]+traza-2/graph_size;
+            v->cfc_centrality = 1/aux_cent;
+            i++;
+        }
+
+    }
 
 };

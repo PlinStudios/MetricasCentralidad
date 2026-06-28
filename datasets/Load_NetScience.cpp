@@ -5,7 +5,7 @@
 #include <iostream>
 #include <sstream>
 
-void LoadNetScience(Graph<std::string,float> *target){
+void LoadNetScience(Graph<std::string,float> *target, int max_vertice = INT_MAX){
     //abre archivo
     std::ifstream file("datasets/NetScience.net");
     if (!file.is_open()) {
@@ -38,7 +38,7 @@ void LoadNetScience(Graph<std::string,float> *target){
         std::string name;
         std::getline(ss, n, ' ');
         std::getline(ss, name);
-
+        if (i>=max_vertice) continue;
         vertices[i] = target->insertVertex(name.substr(1,name.length()-2));
 
         //std::cout << '\r' << n << '/' << vcount << ' ' << vertices[i]->element << "\033[K";
@@ -54,6 +54,7 @@ void LoadNetScience(Graph<std::string,float> *target){
     while (file >> from >> to >> weight)
     {
         //crea edge
+        if (from >= max_vertice || to>= max_vertice) continue;
         count++;
         //std::cout << '\r' << count << " - " << from << " <-> " << to << " | " << weight << "\033[K";
         target->insertEdge(vertices[from-1],vertices[to-1],weight);
