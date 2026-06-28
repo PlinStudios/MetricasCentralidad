@@ -8,7 +8,6 @@ class ALGraph : public Graph<V,E>{
     std::list<Vertex<V,E>*> vertexList;
     std::list<Edge<V,E>*> edgeList;
 
-
     public:
     // Métodos de acceso
 
@@ -128,6 +127,32 @@ class ALGraph : public Graph<V,E>{
             vertexList.pop_front();
             delete v;
         }
+    }
+
+    int laplacianEnergy(Vertex<V,E> *vertex = nullptr){
+        int energy=0;
+        for (auto v: this->vertexList){
+            int sum=0;
+            if (v!=vertex){
+                for (auto ed : this->incidentEdges(v)){
+                    if (ed->start!=vertex && ed->end!=vertex){
+                        sum+=ed->element;
+                        energy+=ed->element*ed->element;
+                    }
+                }
+            }
+        energy+=sum*sum;
+        }
+        //std::cout << energy << std::endl;
+        return energy;
+    }
+
+    float laplacianCentrality(Vertex<V,E> *v){
+        int lapTotal= this->laplacianEnergy();
+        int lapNoVertex= laplacianEnergy(v);
+        float lapVertex= (float) (lapTotal - lapNoVertex)/lapTotal;
+        //std::cout << lapTotal << " <-> " << lapNoVertex << std::endl;
+        return lapVertex;
     }
 
 };
