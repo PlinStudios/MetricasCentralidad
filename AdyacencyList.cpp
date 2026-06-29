@@ -1,8 +1,7 @@
 #include "Graph.hpp"
 #include <vector>
 #include <unordered_map>
-#include <cmath>
-#include <stdexcept>
+#include <cmath> 
 #include "InverseMatrix.hpp"
 #pragma once
 
@@ -67,6 +66,7 @@ class ALGraph : public Graph<V,E>{
         auto it = vertexList.insert(vertexList.end(),v);
         v->it = it;
         v->rank=0;
+        v->cfc_centrality=0;
         return v;
     }
     //Inserta una arista (v,w) almacenando el elemento o
@@ -145,13 +145,17 @@ class ALGraph : public Graph<V,E>{
         }
     }
 
-    float laplacianEnergy(Vertex<V,E> *vertex = nullptr){
+    // MÉTODOS PARA CALCULAR MEDIDAS DE CENTRALIDAD
+
+
+    //calculamos energia laplaciana, si le entregamos un parametro es porque queremos calcuar la energia del grafo sin este vertice
+    float laplacianEnergy(Vertex<V,E> *vertex = nullptr){  //parametro opcional corresponde a vertice al que le queremos calcular laplacian centrality
         float energy=0;
-        for (auto v: this->vertexList){
+        for (auto v: this->vertexList){  //recorremos todos los vertices del grafo
             float sum=0;
-            if (v!=vertex){
+            if (v!=vertex){  //mientras el vertice no corresponda a nuestro parametro calculamos 
                 for (auto ed : this->incidentEdges(v)){
-                    if (ed->start!=vertex && ed->end!=vertex){
+                    if (ed->start!=vertex && ed->end!=vertex){  //mientras arista no contenga al vertice parametro calculamos
                         sum+=ed->element;
                         energy+=ed->element*ed->element;
                     }
@@ -159,31 +163,31 @@ class ALGraph : public Graph<V,E>{
             }
         energy+=sum*sum;
         }
-        //std::cout << energy << std::endl;
         return energy;
     }
 
     float laplacianCentrality(Vertex<V,E> *v){
-        float lapTotal= this->laplacianEnergy();
-        float lapNoVertex= laplacianEnergy(v);
-        float lapVertex= (float) (lapTotal - lapNoVertex)/lapTotal;
-        //std::cout << lapTotal << " <-> " << lapNoVertex << std::endl;
+        float lapTotal= this->laplacianEnergy();  //calculamos la energia laplaciana de todo el grafo
+        float lapNoVertex= laplacianEnergy(v);  //calculamos la energía laplaciana del grafo que no contiene al vertice
+        float lapVertex= (float) (lapTotal - lapNoVertex)/lapTotal;  //calculamos según fórmula
         return lapVertex;
     }
 
+    // grado de un vertice dividido en la cantidad total de vertices, sirve para normalizar
     float degreeCentrality(Vertex<V,E> *v){
         int degree=this->incidentEdges(v).size();
         int total=this->vertices().size();
         return (float)degree/(total-1);
     }
 
-
+    //cacula el pageRank de un vertice en base a sus vecinos y sus ranks
     void getPageRank(Vertex<V,E> *v){
         int n= this->vertices().size();
-        float d=0.85;
-        auto vecinos= this->incidentEdges(v);
+        float d=0.85;   //dampener tradicional, sirve para que el rank no aumente infinitamente
+        auto vecinos= this->incidentEdges(v);  
         float sum=0;
-        for (auto veci : vecinos){
+        for (auto veci : vecinos){  //navegamos los vecinos y sus ranks
+            //calculamos según fórmula
             sum+= (float) opposite(v, veci)->rank/this->incidentEdges(opposite(v, veci)).size();
         }
         //std::cout << sum << std::endl;
@@ -191,48 +195,51 @@ class ALGraph : public Graph<V,E>{
 
     }
 
-
+    //actualizamos el rank de todos los vertices del grafo
     void updateRank(){
         auto vertices= this->vertices();
-        for (int i=0; i<45; i++){
+        for (int i=0; i<45; i++){  //iteramos 45 (máximo) veces porque es el éstandar que ocupa google
             int cont=0;
             for (auto v: vertices){
                 float aux= pageRank(v);
                 this->getPageRank(v);
-                float dif = abs(pageRank(v) - aux);
-                if (dif<0.0001){
-                    cont++;
+                float dif = abs(pageRank(v) - aux);  //diferencia entre el rank antiguo y el nuevo
+                if (dif<0.0001){    //si la diferencia es pequeña significa que los ranks se estabilizaron y podemos dejar de actualizar
+                    cont++;  
                 }
             }
-            if (cont==vertices.size()){
+            if (cont==vertices.size()){  //chequeamos que todos los valores de pagerank se hayan estabilizado
                 return;
             }
         }
     }
 
+    //retornamos pagerank de un vertice
     float pageRank(Vertex<V,E> *v){
         return v->rank;
     }
 
+    //calculamos closeness centrality
     float closenessCentrality(Vertex<V,E> *v){
         float sum=0;
-        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
+        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);  //calculamos el largo de los caminos más cortos entre nuestro vertice y el resto
          for (Vertex<V, E>* u : vertexList) {
-            if (dist[u]== INF){
+            if (dist[u]== INF){  //como estgamos trabajando con división, si dividimos por infinito sabemos inmediatamente que el resultado es 0
                 return 0;
             }
             sum+=dist[u];
          }
-        float close= (float) (this->vertices().size() - 1 ) / sum;
+         //calculamos según fórmula
+        float close= (float) (this->vertices().size() - 1 ) / sum;  //cantidad de vertices dividido por la suma de toods los caminos mas cortos de v
         return close;
     }
 
-
+    //calculamos harmonic centrality
     float harmonicCentrality(Vertex<V,E> *v){
         float sum=0;
-        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
+        unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);  //calculamos el largo de los caminos más cortos entre nuestro vertice y el resto
         for (Vertex<V, E>* u : vertexList) {
-            if (dist[u]== INF || dist[u]== 0){
+            if (dist[u]== INF || dist[u]== 0){  //si no existe camino más corto nos saltamos el vertice
                 sum+=0;
             }
                 else{
@@ -242,12 +249,13 @@ class ALGraph : public Graph<V,E>{
         return sum / (vertices().size() - 1);  //normaliza la métrica
     }
 
+    //calcula el largo promedio del camino más corto entre dos vértices
     float averagePathLength(){
         float sum=0;
-        for (Vertex<V, E>* v : vertexList) {
+        for (Vertex<V, E>* v : vertexList) {  //calculamos la distancia a otros vertices para todos los vertices
             unordered_map<Vertex<V, E>*, E> dist= shortestPath(v);
             for (Vertex<V, E>* u : vertexList) {
-                if (dist[u]== INF){
+                if (dist[u]== INF){  //si el camino no existe (es de largo infinito) lo saltamos
                     sum+=0;
                 }
                 else{
@@ -255,17 +263,18 @@ class ALGraph : public Graph<V,E>{
                 }
             }
         }
+        //calculamos según fórmula
         return (float) sum / ((vertices().size() - 1)*vertices().size()); 
     }
 
 
-// código basado en implementación de geeksforgeeks
+// código basado en implementación de geeksforgeeks de dijkstra
+//https://www.geeksforgeeks.org/dsa/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
 unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
     // Priority queue que guarda pares de: <distancia actual, puntero al vertice>
     // greater es para que los menores elementos se procesen primero
     using PQ_Element = pair<E, Vertex<V, E>*>;
     priority_queue<PQ_Element, vector<PQ_Element>, greater<PQ_Element>> pq;
-
     // distancia entre nuestro punto de partida (src) y los otros vectores
     unordered_map<Vertex<V, E>*, E> dist;
 
@@ -300,21 +309,22 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
             }
         }
     } 
-
     return dist;
 }
 
 
-
+    //Actualiza los valores de CFCC, pero solo funciona en componentes conexas
     void updateCFC_Centrality(){
         auto vertices_list = vertices();
         int graph_size = vertices_list.size();
-        std::vector<std::vector<int>> matriz_laplaciana(graph_size, std::vector<int>(graph_size, 0));
         std::unordered_map<Vertex<V, E>*, int> indexMap;
         int index = 0;
+        //utiliza un mapa para asignar a cada vertice un indice
         for (auto v : vertices_list) {
             indexMap[v] = index++;
         }
+        //crea la matriz laplaciana y la actualiza usando la lista de adyacencia de cada nodo
+        std::vector<std::vector<double>> matriz_laplaciana(graph_size, std::vector<double>(graph_size, 0));
         for (auto v : vertices_list) {
             int row = indexMap[v];
             for (auto e : incidentEdges(v)) {
@@ -323,7 +333,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 int col = indexMap[w];
                 // para un grafo no dirigido, procesar cada arista una sola vez
                 if (row < col) {
-                    int weight = e->element;
+                    double weight = (double)e->element;
                     matriz_laplaciana[row][row] += weight;
                     matriz_laplaciana[col][col] += weight;
                     matriz_laplaciana[row][col] -= weight;
@@ -331,7 +341,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 }
             }
         }
-
+        //calcula la inversa utilizando pivoteo parcial
         std::vector<std::vector<double>> augM(graph_size, std::vector<double>(2 * graph_size, 0.0));
 
         for (int a = 0; a < graph_size; ++a) {
@@ -354,7 +364,8 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
             }
 
             if (maxVal < 1e-12) {
-                throw std::invalid_argument("La matriz es singular (no tiene inversa).");
+                std::cout<<"La matriz es singular (no tiene inversa)."<<endl;
+                return;
             }
 
             if (maxRow != col) {
@@ -381,7 +392,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 matriz_c[i][j] = augM[i][graph_size + j];
             }
         }
-
+        //una vez que se tiene la matriz C, falta tan solo calcular la traza, el resto es una operacion O(1) para cada vertice
         double traza = 0.0;
         for (int a = 0; a < graph_size; ++a) {
             traza += matriz_c[a][a];
@@ -395,13 +406,15 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
         }
     }
 
-//codigo basado en implementación de geeksforgeeks
+//codigo basado en implementación de geeksforgeeks de dijkstra
+//https://www.geeksforgeeks.org/dsa/dijkstras-algorithm-for-adjacency-list-representation-greedy-algo-8/
 float betweennessCentrality(Vertex<V, E>* target) {
     float bet = 0.0f;
 
-    for (Vertex<V, E>* src : this->vertexList) {
-        for (Vertex<V, E>* dest : this->vertexList) {
-            // se nos pide qie no sean iguales
+    for (Vertex<V, E>* src : this->vertexList) { // vertice de inicio
+        for (Vertex<V, E>* dest : this->vertexList) { //vertice destino
+            
+            // se nos pide que no sean iguales en la formula
             if (src == dest || src == target || dest == target) {
                 continue;
             }
@@ -475,7 +488,7 @@ float betweennessCentrality(Vertex<V, E>* target) {
                     }
                 }
             }
-
+            //calculamos según fórmula
             if (num_paths[dest] > 0) {
                 bet += (float)paths_through_target[dest] / num_paths[dest];
             }
