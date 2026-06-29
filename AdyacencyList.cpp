@@ -66,6 +66,7 @@ class ALGraph : public Graph<V,E>{
         auto it = vertexList.insert(vertexList.end(),v);
         v->it = it;
         v->rank=0;
+        v->cfc_centrality=0;
         return v;
     }
     //Inserta una arista (v,w) almacenando el elemento o
@@ -312,16 +313,18 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
 }
 
 
-
+    //Actualiza los valores de CFCC, pero solo funciona en componentes conexas
     void updateCFC_Centrality(){
         auto vertices_list = vertices();
         int graph_size = vertices_list.size();
-        std::vector<std::vector<int>> matriz_laplaciana(graph_size, std::vector<int>(graph_size, 0));
         std::unordered_map<Vertex<V, E>*, int> indexMap;
         int index = 0;
+        //utiliza un mapa para asignar a cada vertice un indice
         for (auto v : vertices_list) {
             indexMap[v] = index++;
         }
+        //crea la matriz laplaciana y la actualiza usando la lista de adyacencia de cada nodo
+        std::vector<std::vector<double>> matriz_laplaciana(graph_size, std::vector<double>(graph_size, 0));
         for (auto v : vertices_list) {
             int row = indexMap[v];
             for (auto e : incidentEdges(v)) {
@@ -330,7 +333,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 int col = indexMap[w];
                 // para un grafo no dirigido, procesar cada arista una sola vez
                 if (row < col) {
-                    int weight = e->element;
+                    double weight = (double)e->element;
                     matriz_laplaciana[row][row] += weight;
                     matriz_laplaciana[col][col] += weight;
                     matriz_laplaciana[row][col] -= weight;
@@ -338,16 +341,58 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 }
             }
         }
+        //calcula la inversa utilizando pivoteo parcial
+        std::vector<std::vector<double>> augM(graph_size, std::vector<double>(2 * graph_size, 0.0));
 
-        for (int a = 0; a < graph_size; a++) {
-            for (int b = 0; b < graph_size; b++) {
+        for (int a = 0; a < graph_size; ++a) {
+            for (int b = 0; b < graph_size; ++b) {
                 matriz_laplaciana[a][b]++;
+                augM[a][b] = static_cast<double>(matriz_laplaciana[a][b]);
+            }
+            augM[a][graph_size + a] = 1.0;
+        }
+
+        for (int col = 0; col < graph_size; ++col) {
+            int maxRow = col;
+            double maxVal = std::fabs(augM[col][col]);
+            for (int row = col + 1; row < graph_size; ++row) {
+                double val = std::fabs(augM[row][col]);
+                if (val > maxVal) {
+                    maxVal = val;
+                    maxRow = row;
+                }
+            }
+
+            if (maxVal < 1e-12) {
+                std::cout<<"La matriz es singular (no tiene inversa)."<<endl;
+                return;
+            }
+
+            if (maxRow != col) {
+                std::swap(augM[col], augM[maxRow]);
+            }
+
+            double pivot = augM[col][col];
+            for (int j = col; j < 2 * graph_size; ++j) {
+                augM[col][j] /= pivot;
+            }
+
+            for (int row = 0; row < graph_size; ++row) {
+                if (row == col) continue;
+                double factor = augM[row][col];
+                for (int j = col; j < 2 * graph_size; ++j) {
+                    augM[row][j] -= factor * augM[col][j];
+                }
             }
         }
 
-        std::vector<std::vector<double>> matriz_c(graph_size, std::vector<double>(graph_size));
-        inverse(matriz_laplaciana, matriz_c);
-
+        std::vector<std::vector<double>> matriz_c(graph_size, std::vector<double>(graph_size, 0.0));
+        for (int i = 0; i < graph_size; ++i) {
+            for (int j = 0; j < graph_size; ++j) {
+                matriz_c[i][j] = augM[i][graph_size + j];
+            }
+        }
+        //una vez que se tiene la matriz C, falta tan solo calcular la traza, el resto es una operacion O(1) para cada vertice
         double traza = 0.0;
         for (int a = 0; a < graph_size; ++a) {
             traza += matriz_c[a][a];
