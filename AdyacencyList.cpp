@@ -183,10 +183,9 @@ class ALGraph : public Graph<V,E>{
     //cacula el pageRank de un vertice en base a sus vecinos y sus ranks
     void getPageRank(Vertex<V,E> *v){
         int n= this->vertices().size();
-        float d=0.85;   //dampener tradicional, sirve para que el rank no aumente infinitamente
-        auto vecinos= this->incidentEdges(v);  
+        float d=0.85;   //dampener tradicional, sirve para que el rank no aumente infinitamente 
         float sum=0;
-        for (auto veci : vecinos){  //navegamos los vecinos y sus ranks
+        for (auto veci : this->incidentEdges(v)){  //navegamos los vecinos y sus ranks
             //calculamos según fórmula
             sum+= (float) opposite(v, veci)->rank/this->incidentEdges(opposite(v, veci)).size();
         }
@@ -197,10 +196,9 @@ class ALGraph : public Graph<V,E>{
 
     //actualizamos el rank de todos los vertices del grafo
     void updateRank(){
-        auto vertices= this->vertices();
         for (int i=0; i<45; i++){  //iteramos 45 (máximo) veces porque es el éstandar que ocupa google
             int cont=0;
-            for (auto v: vertices){
+            for (auto v: this->vertices()){
                 float aux= pageRank(v);
                 this->getPageRank(v);
                 float dif = abs(pageRank(v) - aux);  //diferencia entre el rank antiguo y el nuevo
@@ -208,7 +206,7 @@ class ALGraph : public Graph<V,E>{
                     cont++;  
                 }
             }
-            if (cont==vertices.size()){  //chequeamos que todos los valores de pagerank se hayan estabilizado
+            if (cont==this->vertices().size()){  //chequeamos que todos los valores de pagerank se hayan estabilizado
                 return;
             }
         }
