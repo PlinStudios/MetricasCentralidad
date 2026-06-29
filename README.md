@@ -8,13 +8,13 @@ Obtener los dataset
 y mover a /datasets<br />
 
 Compilar
-´´´
+```
 g++ main.cpp -o CentralityMetrics
-´´´
+```
 y ejecutar
-´´´
+```
 ./CentralityMetrics
-´´´
+```
 <br />
 
 ## Testear Tiempos
