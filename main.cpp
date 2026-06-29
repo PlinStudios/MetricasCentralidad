@@ -1,6 +1,7 @@
 #include "datasets/Load_IMDB.cpp"
 #include "datasets/Load_NetScience.cpp"
 #include "AdyacencyList.cpp"
+#include "metrics.cpp"
 #include <chrono>
 #include <iostream>
 #include <fstream>
@@ -26,50 +27,50 @@ int main(int argc, char* argv[]){
 
     //Degree Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    float degCent = grafo-> degreeCentrality(*std::begin(vert));
+    float degCent = degreeCentrality<std::string,int>(grafo,*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Betweenness Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    float betCent = grafo-> betweennessCentrality(*std::begin(vert));
+    float betCent = betweennessCentrality(grafo,*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Closeness Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    float closCent = grafo-> closenessCentrality(*std::begin(vert));
+    float closCent = closenessCentrality(grafo,*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Page Rank
     inicio = std::chrono::high_resolution_clock::now();
-    grafo->updateRank();
-    float prank = grafo-> pageRank(*std::begin(vert));
+    updateRank(grafo);
+    float prank = pageRank(*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Average Shortest Path
     inicio = std::chrono::high_resolution_clock::now();
-    float avg = grafo-> averagePathLength();
+    float avg = averagePathLength(grafo);
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Laplacian Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    float lapCen = grafo-> laplacianCentrality(*std::begin(vert));
+    float lapCen = laplacianCentrality(grafo,*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Harmonic Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    float harCen = grafo-> harmonicCentrality(*std::begin(vert));
+    float harCen = harmonicCentrality(grafo,*std::begin(vert));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
@@ -98,50 +99,50 @@ int main(int argc, char* argv[]){
 
     //Degree Centrality
     inicio = std::chrono::high_resolution_clock::now();
-    degCent = grafo2-> degreeCentrality(*std::begin(vert2));
+    degCent = degreeCentrality(grafo2,*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Betweenness Centrality
     inicio = std::chrono::high_resolution_clock::now();
-        betCent = grafo2-> betweennessCentrality(*std::begin(vert2));
+        betCent = betweennessCentrality(grafo2,*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Closeness Centrality
     inicio = std::chrono::high_resolution_clock::now();
-        closCent = grafo2-> closenessCentrality(*std::begin(vert2));
+        closCent = closenessCentrality(grafo2,*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Page Rank
     inicio = std::chrono::high_resolution_clock::now();
-    grafo2->updateRank();
-        prank = grafo2-> pageRank(*std::begin(vert2));
+    updateRank(grafo2);
+        prank = pageRank(*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Average Shortest Path
     inicio = std::chrono::high_resolution_clock::now();
-        avg = grafo2-> averagePathLength();
+        avg = averagePathLength(grafo2);
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Laplacian Centrality
     inicio = std::chrono::high_resolution_clock::now();
-        lapCen = grafo2-> laplacianCentrality(*std::begin(vert2));
+        lapCen = laplacianCentrality(grafo2,*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << ',';
 
     //Harmonic Centrality
     inicio = std::chrono::high_resolution_clock::now();
-        harCen = grafo2-> harmonicCentrality(*std::begin(vert2));
+        harCen = harmonicCentrality(grafo2,*std::begin(vert2));
     fin = std::chrono::high_resolution_clock::now();
     duracion = std::chrono::duration_cast<std::chrono::microseconds>(fin - inicio).count();
     outtime << duracion << '\n';
