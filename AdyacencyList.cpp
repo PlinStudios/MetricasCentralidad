@@ -118,15 +118,15 @@ class ALGraph : public Graph<V,E>{
     // Métodos iteradores
 
     //Aristas incidentes a un vértice v
-    virtual std::list<Edge<V,E>*> incidentEdges(Vertex<V,E> *v) override{
+    virtual const std::list<Edge<V,E>*>& incidentEdges(Vertex<V,E> *v) override{
         return v->edges;
     }
     //Todos los vértices en el grafo
-    virtual std::list<Vertex<V,E>*> vertices() override{
+    virtual const std::list<Vertex<V,E>*>& vertices() override{
         return vertexList;
     }
     //Todas las aristas en el grafo
-    virtual std::list<Edge<V,E>*> edges() override{
+    virtual const std::list<Edge<V,E>*>& edges() override{
         return edgeList;
     }
 

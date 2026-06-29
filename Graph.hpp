@@ -56,9 +56,9 @@ class Graph{
     virtual void removeEdge(Edge<V,E> *e)=0; //Elimina la arista e
 
     // Métodos iteradores
-    virtual std::list<Edge<V,E>*> incidentEdges(Vertex<V,E> *v)=0; //Aristas incidentes a un vértice v
-    virtual std::list<Vertex<V,E>*> vertices()=0; //Todos los vértices en el grafo
-    virtual std::list<Edge<V,E>*> edges()=0; //Todas las aristas en el grafo
+    virtual const std::list<Edge<V,E>*>& incidentEdges(Vertex<V,E> *v)=0; //Aristas incidentes a un vértice v
+    virtual const std::list<Vertex<V,E>*>& vertices()=0; //Todos los vértices en el grafo
+    virtual const std::list<Edge<V,E>*>& edges()=0; //Todas las aristas en el grafo
 
     virtual ~Graph() = default;
 };
