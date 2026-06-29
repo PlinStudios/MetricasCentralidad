@@ -67,6 +67,7 @@ class ALGraph : public Graph<V,E>{
         auto it = vertexList.insert(vertexList.end(),v);
         v->it = it;
         v->rank=0;
+        v->cfc_centrality=0;
         return v;
     }
     //Inserta una arista (v,w) almacenando el elemento o
@@ -305,16 +306,18 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
 }
 
 
-
+    //Actualiza los valores de CFCC, pero solo funciona en componentes conexas
     void updateCFC_Centrality(){
         auto vertices_list = vertices();
         int graph_size = vertices_list.size();
-        std::vector<std::vector<int>> matriz_laplaciana(graph_size, std::vector<int>(graph_size, 0));
         std::unordered_map<Vertex<V, E>*, int> indexMap;
         int index = 0;
+        //utiliza un mapa para asignar a cada vertice un indice
         for (auto v : vertices_list) {
             indexMap[v] = index++;
         }
+        //crea la matriz laplaciana y la actualiza usando la lista de adyacencia de cada nodo
+        std::vector<std::vector<double>> matriz_laplaciana(graph_size, std::vector<double>(graph_size, 0));
         for (auto v : vertices_list) {
             int row = indexMap[v];
             for (auto e : incidentEdges(v)) {
@@ -323,7 +326,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 int col = indexMap[w];
                 // para un grafo no dirigido, procesar cada arista una sola vez
                 if (row < col) {
-                    int weight = e->element;
+                    double weight = (double)e->element;
                     matriz_laplaciana[row][row] += weight;
                     matriz_laplaciana[col][col] += weight;
                     matriz_laplaciana[row][col] -= weight;
@@ -331,7 +334,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 }
             }
         }
-
+        //calcula la inversa utilizando pivoteo parcial
         std::vector<std::vector<double>> augM(graph_size, std::vector<double>(2 * graph_size, 0.0));
 
         for (int a = 0; a < graph_size; ++a) {
@@ -354,7 +357,8 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
             }
 
             if (maxVal < 1e-12) {
-                throw std::invalid_argument("La matriz es singular (no tiene inversa).");
+                std::cout<<"La matriz es singular (no tiene inversa)."<<endl;
+                return;
             }
 
             if (maxRow != col) {
@@ -381,7 +385,7 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
                 matriz_c[i][j] = augM[i][graph_size + j];
             }
         }
-
+        //una vez que se tiene la matriz C, falta tan solo calcular la traza, el resto es una operacion O(1) para cada vertice
         double traza = 0.0;
         for (int a = 0; a < graph_size; ++a) {
             traza += matriz_c[a][a];
