@@ -1,7 +1,8 @@
 #include "Graph.hpp"
 #include <vector>
 #include <unordered_map>
-#include <cmath> 
+#include <cmath>
+#include <stdexcept>
 #include "InverseMatrix.hpp"
 #pragma once
 
@@ -331,14 +332,55 @@ unordered_map<Vertex<V, E>*, E> shortestPath(Vertex<V, E>* src) {
             }
         }
 
-        for (int a = 0; a < graph_size; a++) {
-            for (int b = 0; b < graph_size; b++) {
+        std::vector<std::vector<double>> augM(graph_size, std::vector<double>(2 * graph_size, 0.0));
+
+        for (int a = 0; a < graph_size; ++a) {
+            for (int b = 0; b < graph_size; ++b) {
                 matriz_laplaciana[a][b]++;
+                augM[a][b] = static_cast<double>(matriz_laplaciana[a][b]);
+            }
+            augM[a][graph_size + a] = 1.0;
+        }
+
+        for (int col = 0; col < graph_size; ++col) {
+            int maxRow = col;
+            double maxVal = std::fabs(augM[col][col]);
+            for (int row = col + 1; row < graph_size; ++row) {
+                double val = std::fabs(augM[row][col]);
+                if (val > maxVal) {
+                    maxVal = val;
+                    maxRow = row;
+                }
+            }
+
+            if (maxVal < 1e-12) {
+                throw std::invalid_argument("La matriz es singular (no tiene inversa).");
+            }
+
+            if (maxRow != col) {
+                std::swap(augM[col], augM[maxRow]);
+            }
+
+            double pivot = augM[col][col];
+            for (int j = col; j < 2 * graph_size; ++j) {
+                augM[col][j] /= pivot;
+            }
+
+            for (int row = 0; row < graph_size; ++row) {
+                if (row == col) continue;
+                double factor = augM[row][col];
+                for (int j = col; j < 2 * graph_size; ++j) {
+                    augM[row][j] -= factor * augM[col][j];
+                }
             }
         }
 
-        std::vector<std::vector<double>> matriz_c(graph_size, std::vector<double>(graph_size));
-        inverse(matriz_laplaciana, matriz_c);
+        std::vector<std::vector<double>> matriz_c(graph_size, std::vector<double>(graph_size, 0.0));
+        for (int i = 0; i < graph_size; ++i) {
+            for (int j = 0; j < graph_size; ++j) {
+                matriz_c[i][j] = augM[i][graph_size + j];
+            }
+        }
 
         double traza = 0.0;
         for (int a = 0; a < graph_size; ++a) {
@@ -359,7 +401,6 @@ float betweennessCentrality(Vertex<V, E>* target) {
 
     for (Vertex<V, E>* src : this->vertexList) {
         for (Vertex<V, E>* dest : this->vertexList) {
-            
             // se nos pide qie no sean iguales
             if (src == dest || src == target || dest == target) {
                 continue;
